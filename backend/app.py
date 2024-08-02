@@ -15,13 +15,17 @@ def generate_testcases():
     data = request.get_json()
     language = data.get('language')
     problem = data.get('problem')
+    input_values = data.get('inputValues')
+    output_values = data.get('outputValues')
 
-    test_cases = generate_test_cases(language, problem)
+    test_cases = generate_test_cases(language, problem, input_values, output_values)
 
     # 데이터베이스에 저장
     mongo.db.testcases.insert_one({
         'language': language,
         'problem': problem,
+        'input_values': input_values,
+        'output_values': output_values,
         'test_cases': test_cases
     })
 
