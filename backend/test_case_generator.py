@@ -1,13 +1,31 @@
 import requests
+import openai
+from flask import Flask, request, jsonify
+from flask_pymongo import PyMongo
+from test_case_generator import generate_test_cases
+from bson.json_util import dumps
+import os
+
+TOKEN = os.getenv("TOKEN")
+CLIENT = os.getenv("CLIENT")
+
+app = Flask(__name__)
+app.config["MONGO_URI"] = CLIENT
+mongo = PyMongo(app)
 
 def generate_test_cases(language, problem, input_values, output_values):
     
     test_cases = []
-    for input_val, output_val in zip(input_values, output_values):
-        test_cases.append({'input': input_val.strip(), 'output': output_val.strip()})
+    try:
+        response = query_chatgpt()
+        print("")
+        test_cases = response.split("\n")
+    except Exception as e:
+        print(f"Error: {e}")
     return test_cases
 
-def query_chatgpt(prompt, api_key):
+def query_chatgpt(language, problem, input_values, output_values):
+    api_key = TOKEN
     endpoint = "https://api.openai.com/v1/engines/davinci-codex/completions"
     headers = {
         "Content-Type": "application/json",
@@ -28,13 +46,4 @@ def query_chatgpt(prompt, api_key):
     except Exception as err:
         print(f"Error occurred: {err}")
 
-
-api_key = ''
-prompt = "안녕하세용"
-
-try:
-    response = query_chatgpt(prompt, api_key)
-    print("")
-    print(response)
-except Exception as e:
-    print(f"Error: {e}")
+    prompt = f"Generate test cases for the following problem: \n\nLanguage: {language}\nProblem: {problem}\nInput values: {input_values}\nOutput values: {output_values}\n\nTest cases:"
