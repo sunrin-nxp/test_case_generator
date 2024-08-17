@@ -1,0 +1,48 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Code Executor</title>
+</head>
+<body>
+    <h1>Python Code Executor</h1>
+    <form id="codeForm">
+        <textarea id="codeInput" placeholder="Enter Python code" rows="10" cols="30"></textarea>
+        <br>
+        <input type="text" id="rangeInput" placeholder="Enter range (e.g., 1,2,3)">
+        <br>
+        <button type="submit">Execute</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('codeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const code = document.getElementById('codeInput').value;
+            const range = document.getElementById('rangeInput').value;
+
+            fetch('/execute', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code, range }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = '';
+                data.forEach(item => {
+                    const p = document.createElement('p');
+                    p.textContent = `Input: ${item.input}, Output: ${item.output}`;
+                    resultDiv.appendChild(p);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
